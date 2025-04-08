@@ -1,5 +1,6 @@
 package com.example.produtos1_2025.controller.exceptions;
 
+import com.example.produtos1_2025.service.exceptions.DatabaseException;
 import com.example.produtos1_2025.service.exceptions.ResourceNotFound;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
@@ -19,6 +20,18 @@ public class ResourceExceptionListener {
         error.setStatus(status.value());
         error.setMessage(e.getMessage());
         error.setError("Resource not found");
+        error.setTimestamp(Instant.now());
+        error.setPath(request.getRequestURI());
+        return ResponseEntity.status(status).body(error);
+    }
+
+    @ExceptionHandler(DatabaseException.class)
+    public ResponseEntity<StandartError> databaseException(DatabaseException e, HttpServletRequest request){
+        HttpStatus status = HttpStatus.BAD_REQUEST;
+        StandartError error = new StandartError();
+        error.setStatus(status.value());
+        error.setMessage(e.getMessage());
+        error.setError("Database exception");
         error.setTimestamp(Instant.now());
         error.setPath(request.getRequestURI());
         return ResponseEntity.status(status).body(error);

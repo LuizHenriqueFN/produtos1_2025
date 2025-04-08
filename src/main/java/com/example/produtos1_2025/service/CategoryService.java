@@ -3,8 +3,12 @@ package com.example.produtos1_2025.service;
 import com.example.produtos1_2025.dtos.CategoryDTO;
 import com.example.produtos1_2025.entity.Category;
 import com.example.produtos1_2025.repository.CategoryRepository;
+import com.example.produtos1_2025.service.exceptions.DatabaseException;
 import com.example.produtos1_2025.service.exceptions.ResourceNotFound;
 import jakarta.persistence.EntityNotFoundException;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,9 +24,9 @@ public class CategoryService {
     private CategoryRepository categoryRepository;
 
     @Transactional(readOnly = true)
-    public List<CategoryDTO> findAll(){
-        List<Category> list = categoryRepository.findAll();
-        return list.stream().map(CategoryDTO::new).collect(Collectors.toList());
+    public Page<CategoryDTO> findAll(Pageable pageable){
+        Page<Category> list = categoryRepository.findAll(pageable);
+        return list.map(CategoryDTO::new);
     }
 
     @Transactional(readOnly = true)
@@ -50,5 +54,18 @@ public class CategoryService {
         }catch (EntityNotFoundException e){
             throw new ResourceNotFound("Category not found: "+ id);
         }
+    }
+
+    @Transactional
+    public void delete(Long id){
+        if(!categoryRepository.existsById(id)){
+            throw new ResourceNotFound("Category not found: "+ id);
+        }
+        try {
+            categoryRepository.deleteById(id);
+        } catch (DataIntegrityViolationException e) {
+            throw new DatabaseException("Integrity violation");
+        }
+
     }
 }
