@@ -1,6 +1,8 @@
 package com.example.produtos1_2025.entity;
 
 import jakarta.persistence.*;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.Instant;
 import java.util.HashSet;
@@ -8,6 +10,8 @@ import java.util.Set;
 
 @Entity
 @Table(name = "tb_product")
+@Data
+@NoArgsConstructor
 public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -30,23 +34,14 @@ public class Product {
     )
     private Set<Category> categories = new HashSet<>();
 
-    public Product() {
 
+    @PrePersist
+    public void prePersist() {
+        this.createdAt = Instant.now();
     }
 
-    public Product(Long id, String name, String description, double price, String imageUrl) {
-        this.id = id;
-        this.name = name;
-        this.description = description;
-        this.price = price;
-        this.imageUrl = imageUrl;
+    @PreUpdate
+    public void preUpdate() {
+        this.updatedAt = Instant.now();
     }
-
-    //    public Product(Product entity) {
-    //        this.id = entity.id;
-    //    }
-    //
-    //    public Product(Product entity, Set<Category> categories) {
-    //        this(product);
-    //    }
 }
