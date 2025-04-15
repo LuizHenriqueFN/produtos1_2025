@@ -1,6 +1,7 @@
 package com.example.produtos1_2025.service;
 
 import com.example.produtos1_2025.dtos.ProductDTO;
+import com.example.produtos1_2025.entity.Category;
 import com.example.produtos1_2025.entity.Product;
 import com.example.produtos1_2025.repository.ProductRepository;
 import com.example.produtos1_2025.service.exceptions.DatabaseException;
@@ -73,5 +74,7 @@ public class ProductService {
         entity.setDescription(dto.getDescription());
         entity.setPrice(dto.getPrice());
         entity.setImageUrl(dto.getImageUrl());
+
+        dto.getCategories().forEach(c -> entity.getCategories().add(new Category(c)));
     }
 }

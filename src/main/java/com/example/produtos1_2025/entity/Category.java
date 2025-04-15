@@ -1,6 +1,8 @@
 package com.example.produtos1_2025.entity;
 
+import com.example.produtos1_2025.dtos.CategoryDTO;
 import jakarta.persistence.*;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -32,5 +34,10 @@ public class Category {
     @PreUpdate
     private void preUpdate() {
         updatedAt = Instant.now();
+    }
+
+    public Category(CategoryDTO dto) {
+        this.name = dto.getName();
+        this.id = dto.getId();
     }
 }
