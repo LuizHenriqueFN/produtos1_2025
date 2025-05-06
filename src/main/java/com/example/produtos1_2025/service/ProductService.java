@@ -38,24 +38,35 @@ public class ProductService {
     public ProductDTO findById(Long id){
         Optional<Product> obj = productRepository.findById(id);
         Product product = obj.orElseThrow(() -> new ResourceNotFound("Product not found " + id));
-        return new ProductDTO(product);
+        return new ProductDTO(product)
+                .add(linkTo(methodOn(ProductController.class).findById(product.getId())).withSelfRel())
+                .add(linkTo(methodOn(ProductController.class).findAll(null)).withRel("All products"))
+                .add(linkTo(methodOn(ProductController.class).update(product.getId(), null)).withRel("Update product"))
+                .add(linkTo(methodOn(ProductController.class).delete(product.getId())).withRel("Delete product"));
     }
 
     @Transactional
     public ProductDTO insert(ProductDTO dto) {
         Product entity = new Product();
-        this.copyDto(dto, entity);
+        copyDtoToEntity(dto, entity);
         entity = productRepository.save(entity);
-        return new ProductDTO(entity);
+        return new ProductDTO(entity)
+                .add(linkTo(methodOn(ProductController.class).findById(entity.getId())).withSelfRel())
+                .add(linkTo(methodOn(ProductController.class).findAll(null)).withRel("All products"))
+                .add(linkTo(methodOn(ProductController.class).update(entity.getId(), null)).withRel("Update product"))
+                .add(linkTo(methodOn(ProductController.class).delete(entity.getId())).withRel("Delete product"));
     }
 
     @Transactional
     public ProductDTO update(ProductDTO dto, Long id) {
         try {
             Product entity = productRepository.getReferenceById(id);
-            this.copyDto(dto, entity);
+            copyDtoToEntity(dto, entity);
             entity = productRepository.save(entity);
-            return new ProductDTO(entity);
+            return new ProductDTO(entity)
+                    .add(linkTo(methodOn(ProductController.class).findById(entity.getId())).withRel("Find a product"))
+                    .add(linkTo(methodOn(ProductController.class).findAll(null)).withRel("All products"))
+                    .add(linkTo(methodOn(ProductController.class).delete(entity.getId())).withRel("Delete product"));
         } catch (EntityNotFoundException e) {
             throw new ResourceNotFound("Product not found " + id);
         }
@@ -63,7 +74,7 @@ public class ProductService {
 
     @Transactional
     public void delete(Long id) {
-        if(!productRepository.existsById(id)){
+        if (productRepository.existsById(id)){
             throw new ResourceNotFound("Product not found " + id);
         }
         try {
@@ -75,12 +86,10 @@ public class ProductService {
 
 
 
-    private void copyDto(ProductDTO dto, Product entity) {
+    private void copyDtoToEntity(ProductDTO dto, Product entity) {
         entity.setName(dto.getName());
         entity.setDescription(dto.getDescription());
         entity.setPrice(dto.getPrice());
         entity.setImageUrl(dto.getImageUrl());
-
-        dto.getCategories().forEach(c -> entity.getCategories().add(new Category(c)));
     }
 }
