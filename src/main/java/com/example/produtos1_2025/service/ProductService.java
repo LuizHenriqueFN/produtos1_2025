@@ -1,5 +1,6 @@
 package com.example.produtos1_2025.service;
 
+import com.example.produtos1_2025.controller.ProductController;
 import com.example.produtos1_2025.dtos.ProductDTO;
 import com.example.produtos1_2025.entity.Category;
 import com.example.produtos1_2025.entity.Product;
@@ -16,6 +17,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+
 @Service
 public class ProductService {
 
@@ -25,7 +29,9 @@ public class ProductService {
     @Transactional(readOnly = true)
     public Page<ProductDTO> findAll(Pageable pageable){
         Page<Product> list = productRepository.findAll(pageable);
-        return list.map(ProductDTO::new);
+        return list.map(product -> new ProductDTO(product)
+                .add(linkTo(methodOn(ProductController.class).findAll(null)).withSelfRel())
+                .add(linkTo(methodOn(ProductController.class).findById(product.getId())).withRel("Get a product")));
     }
 
     @Transactional(readOnly = true)
