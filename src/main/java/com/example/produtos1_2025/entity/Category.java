@@ -40,4 +40,9 @@ public class Category {
         this.name = dto.getName();
         this.id = dto.getId();
     }
+
+    public Category(String name, Long id) {
+        this.name = name;
+        this.id = id;
+    }
 }
