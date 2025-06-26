@@ -2,6 +2,7 @@ package com.example.produtos1_2025.dtos;
 
 import com.example.produtos1_2025.entity.User;
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -12,6 +13,7 @@ import java.util.Set;
 @NoArgsConstructor
 public class UserDTO {
     private long id;
+    @NotBlank(message = "Deve ter nome")
     private String firstName;
     private String lastName;
 

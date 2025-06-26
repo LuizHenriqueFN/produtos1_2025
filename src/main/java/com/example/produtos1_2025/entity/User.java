@@ -28,6 +28,14 @@ public class User {
     )
     private Set<Role> roles = new HashSet<>();
 
+    public void addRole(Role role){
+        roles.add(role);
+    }
+
+    public boolean hasRole(String roleName){
+        return !roles.stream().filter(r -> r.getAuthority().equals(roleName)).toList().isEmpty();
+    }
+
     public User(User entity) {
         this.id = entity.getId();
         this.firstName = entity.getFirstName();
