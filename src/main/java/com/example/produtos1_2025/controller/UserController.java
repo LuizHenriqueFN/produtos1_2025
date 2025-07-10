@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -24,6 +25,7 @@ public class UserController {
     private UserService userService;
 
     @GetMapping(produces = "application/json")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
     @Operation(
             description = "Get all users",
             summary = "Get all users",
@@ -37,6 +39,7 @@ public class UserController {
     }
 
     @GetMapping(value = "/{id}", produces = "application/json")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
     @Operation(
             description = "Get a user",
             summary = "Get a user",
@@ -51,6 +54,7 @@ public class UserController {
     }
 
     @PostMapping(produces = "application/json")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
     @Operation(
             description = "Create a new user",
             summary = "Create a new user",
@@ -68,6 +72,7 @@ public class UserController {
     }
 
     @PutMapping(value = "/{id}", produces = "application/json")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
     @Operation(
             description = "Update a user",
             summary = "Update a user",
@@ -85,6 +90,7 @@ public class UserController {
     }
 
     @DeleteMapping(value = "/{id}")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
     @Operation(
             description = "Delete user",
             summary = "Delete user",
