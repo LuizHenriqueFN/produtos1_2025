@@ -5,6 +5,7 @@ import com.example.produtos1_2025.dtos.UserDTO;
 import com.example.produtos1_2025.dtos.UserInsertDTO;
 import com.example.produtos1_2025.entity.Role;
 import com.example.produtos1_2025.entity.User;
+import com.example.produtos1_2025.projections.UserDetailsProjection;
 import com.example.produtos1_2025.repository.RoleRepository;
 import com.example.produtos1_2025.repository.UserRepository;
 import com.example.produtos1_2025.service.exceptions.DatabaseException;
@@ -15,14 +16,18 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
-public class UserService {
+public class UserService implements UserDetailsService {
     @Autowired
     private UserRepository repository;
 
@@ -35,7 +40,7 @@ public class UserService {
     @Transactional(readOnly = true)
     public Page<UserDTO> findAll(Pageable pageable) {
         Page<User> users = repository.findAll(pageable);
-        return users.map(user -> new UserDTO(user));
+        return users.map(UserDTO::new);
     }
 
     @Transactional(readOnly = true)
@@ -95,5 +100,23 @@ public class UserService {
             Role roleEntity = roleRepository.getReferenceById(role.getId());
             entity.getRoles().add(roleEntity);
         }
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        List<UserDetailsProjection> result = repository.searchUserAndRolesByEmail(username);
+
+        if(result.isEmpty()){
+            throw new UsernameNotFoundException("User not found");
+        }
+
+        User user = new User();
+        user.setEmail(result.getFirst().getUsername());
+        user.setPassword(result.getFirst().getPassword());
+        for(UserDetailsProjection projection: result){
+            user.addRole(new Role(projection.getRoleId(), projection.getAuthority()));
+        }
+
+        return user;
     }
 }
